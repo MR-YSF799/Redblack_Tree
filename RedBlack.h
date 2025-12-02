@@ -1,32 +1,28 @@
+#ifndef RNTREE_H
+#define RNTREE_H
+
 #include <iostream>
 using namespace std;
 
 enum Color { RED, BLACK };
-class Node {
-public:
-    int data;
+
+struct Node {
+    int key;
     Color color;
     Node *left, *right, *parent;
-
-    Node(int data) {
-        this->data = data;
-        left = right = parent = nullptr;
-        color = RED;
-    }
 };
 
-class RedBlackTree {
-    private :
+// Variables globales déclarées dans le .cpp
+extern Node* root;
+extern Node* NIL;
 
-    Node *root;
-    void rotateLeft(Node*& x);
-    void rotateRight(Node*& x);
-    void fixInsert(Node*& k);
-    void inorderHelper(Node* node);
+// Prototypes de fonctions
+void init();
+Node* createNode(int key);
+void leftRotate(Node* &root, Node *x);
+void rightRotate(Node* &root, Node *y);
+void fixInsert(Node* &root, Node* z);
+void Insert(int key);
+void inorder(Node* node);
 
-    public:
-    RedBlackTree();
-    void insert(int value);
-    bool search(int key);
-    void inorder();
-};
+#endif // RNTREE_H

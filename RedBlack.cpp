@@ -1,24 +1,37 @@
-#include "redblack.h"
+#include "RedBlack.h"
 
-// -------------------- NODE --------------------
-Node::Node(int value)
-    : data(value), color(RED),
-      left(nullptr), right(nullptr), parent(nullptr) {}
+// Déclaration du NIL et de root
+Node* root = nullptr;
+Node* NIL = nullptr;
 
-// -------------------- RBT CONSTRUCTOR --------------------
-RedBlackTree::RedBlackTree() : root(nullptr) {}
+// -------------------- Initialisation --------------------
+void init() {
+    NIL = new Node();
+    NIL->color = BLACK;
+    NIL->left = NIL->right = NIL->parent = nullptr;
 
-// -------------------- ROTATE LEFT --------------------
-void RedBlackTree::rotateLeft(Node*& x) {
+    root = NIL;
+}
+
+// -------------------- Création d'un nœud --------------------
+Node* createNode(int key) {
+    Node* node = new Node();
+    node->key = key;
+    node->color = RED;
+    node->left = node->right = node->parent = NIL;
+    return node;
+}
+
+// -------------------- Rotation gauche --------------------
+void leftRotate(Node* &root, Node *x) {
     Node* y = x->right;
     x->right = y->left;
-
-    if (y->left != nullptr)
+    if (y->left != NIL)
         y->left->parent = x;
 
     y->parent = x->parent;
 
-    if (x->parent == nullptr)
+    if (x->parent == NIL)
         root = y;
     else if (x == x->parent->left)
         x->parent->left = y;
@@ -29,72 +42,65 @@ void RedBlackTree::rotateLeft(Node*& x) {
     x->parent = y;
 }
 
-// -------------------- ROTATE RIGHT --------------------
-void RedBlackTree::rotateRight(Node*& x) {
-    Node* y = x->left;
-    x->left = y->right;
+// -------------------- Rotation droite --------------------
+void rightRotate(Node* &root, Node *y) {
+    Node* x = y->left;
+    y->left = x->right;
+    if (x->right != NIL)
+        x->right->parent = y;
 
-    if (y->right != nullptr)
-        y->right->parent = x;
+    x->parent = y->parent;
 
-    y->parent = x->parent;
-
-    if (x->parent == nullptr)
-        root = y;
-    else if (x == x->parent->right)
-        x->parent->right = y;
+    if (y->parent == NIL)
+        root = x;
+    else if (y == y->parent->right)
+        y->parent->right = x;
     else
-        x->parent->left = y;
+        y->parent->left = x;
 
-    y->right = x;
-    x->parent = y;
+    x->right = y;
+    y->parent = x;
 }
 
-// -------------------- FIX INSERT --------------------
-void RedBlackTree::fixInsert(Node*& k) {
-    Node *parent = nullptr;
-    Node *grandparent = nullptr;
+// -------------------- Correction après insertion --------------------
+void fixInsert(Node* &root, Node* z) {
+    while (z->parent->color == RED) {
+        if (z->parent == z->parent->parent->left) {
+            Node* y = z->parent->parent->right;
+            // case 1 Uncle is RED
 
-    while (k != root && k->parent->color == RED) {
-        parent = k->parent;
-        grandparent = parent->parent;
-
-        // Parent is left child
-        if (parent == grandparent->left) {
-            Node* uncle = grandparent->right;
-
-            if (uncle != nullptr && uncle->color == RED) {
-                grandparent->color = RED;
-                parent->color = BLACK;
-                uncle->color = BLACK;
-                k = grandparent;
+            if (y->color == RED) {
+                z->parent->color = BLACK;
+                y->color = BLACK;
+                z->parent->parent->color = RED;
+                z = z->parent->parent;
+                // uncle is black case 3 
             } else {
-                if (k == parent->right) {
-                    rotateLeft(parent);
-                    k = parent;
+                if (z == z->parent->right) {
+                    z = z->parent;
+                    leftRotate(root, z);
                 }
-                rotateRight(grandparent);
-                swap(parent->color, grandparent->color);
-                k = parent;
+                z->parent->color = BLACK;
+                z->parent->parent->color = RED;
+                rightRotate(root, z->parent->parent);
             }
-        }
-        // Parent is right child
-        else {
-            Node* uncle = grandparent->left;
+            // case 2 4 6
+        } else {
+            Node* y = z->parent->parent->left;
 
-            if (uncle != nullptr && uncle->color == RED) {
-                grandparent->color = RED;
-                parent->color = BLACK;
-                uncle->color = BLACK;
-                k = grandparent;
+            if (y->color == RED) {
+                z->parent->color = BLACK;
+                y->color = BLACK;
+                z->parent->parent->color = RED;
+                z = z->parent->parent;
             } else {
-                if (k == parent->left) {
-                    rotateRight(parent);
-                    k = parent;
+                if (z == z->parent->left) {
+                    z = z->parent;
+                    rightRotate(root, z);
                 }
-                rotateLeft(grandparent);
-                swap(parent->color, grandparent->color);
-                k = parent;
+                z->parent->color = BLACK;
+                z->parent->parent->color = RED;
+                leftRotate(root, z->parent->parent);
             }
         }
     }
@@ -102,56 +108,36 @@ void RedBlackTree::fixInsert(Node*& k) {
     root->color = BLACK;
 }
 
-// -------------------- INSERT --------------------
-void RedBlackTree::insert(int value) {
-    Node* node = new Node(value);
-    Node* current = root;
-    Node* parent = nullptr;
+// -------------------- Insertion --------------------
+void Insert(int key) {
+    Node* z = createNode(key);
+    Node* y = NIL;
+    Node* x = root;
 
-    while (current != nullptr) {
-        parent = current;
-        if (node->data < current->data)
-            current = current->left;
+    while (x != NIL) {
+        y = x;
+        if (z->key < x->key)
+            x = x->left;
         else
-            current = current->right;
+            x = x->right;
     }
 
-    node->parent = parent;
+    z->parent = y;
 
-    if (parent == nullptr)
-        root = node;
-    else if (node->data < parent->data)
-        parent->left = node;
+    if (y == NIL)
+        root = z;
+    else if (z->key < y->key)
+        y->left = z;
     else
-        parent->right = node;
+        y->right = z;
 
-    fixInsert(node);
+    fixInsert(root, z);
 }
 
-// -------------------- SEARCH --------------------
-bool RedBlackTree::search(int key) {
-    Node* current = root;
-    while (current != nullptr) {
-        if (key == current->data)
-            return true;
-        else if (key < current->data)
-            current = current->left;
-        else
-            current = current->right;
-    }
-    return false;
-}
-
-// -------------------- INORDER PRINT --------------------
-void RedBlackTree::inorderHelper(Node* node) {
-    if (node == nullptr) return;
-    inorderHelper(node->left);
-    cout << node->data 
-         << " (" << (node->color == RED ? "R" : "B") << ") ";
-    inorderHelper(node->right);
-}
-
-void RedBlackTree::inorder() {
-    inorderHelper(root);
-    cout << endl;
+// -------------------- Affichage Inorder --------------------
+void inorder(Node* node) {
+    if (node == NIL) return;
+    inorder(node->left);
+    cout << node->key << "(" << (node->color == RED ? "R" : "B") << ") ";
+    inorder(node->right);
 }
