@@ -14,9 +14,10 @@ public:
         color = RED;
     }
 };
+
 class RedBlackTree {
     private :
-    
+
     Node *root;
     void rotateLeft(Node*& x);
     void rotateRight(Node*& x);
@@ -28,7 +29,4 @@ class RedBlackTree {
     void insert(int value);
     bool search(int key);
     void inorder();
-
-
-
 };
