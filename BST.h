@@ -9,12 +9,12 @@ struct BSTNode {
     BSTNode *left, *right;
 };
 
-// Création d’un noeud
+
 BSTNode* createBSTNode(int key) {
     return new BSTNode{ key, nullptr, nullptr };
 }
 
-// Insertion dans le BST
+
 BSTNode* bstInsert(BSTNode* root, int key) {
     if (!root) return createBSTNode(key);
     if (key < root->key) root->left = bstInsert(root->left, key);
@@ -22,7 +22,7 @@ BSTNode* bstInsert(BSTNode* root, int key) {
     return root;
 }
 
-// Recherche dans le BST
+
 bool bstSearch(BSTNode* root, int key) {
     if (!root) return false;
     if (root->key == key) return true;
@@ -30,7 +30,7 @@ bool bstSearch(BSTNode* root, int key) {
                            : bstSearch(root->right, key);
 }
 
-// Trouver le minimum (utile pour suppression)
+
 BSTNode* bstMinValueNode(BSTNode* node) {
     BSTNode* current = node;
     while (current && current->left)
@@ -38,7 +38,7 @@ BSTNode* bstMinValueNode(BSTNode* node) {
     return current;
 }
 
-// Suppression dans le BST
+
 BSTNode* bstDelete(BSTNode* root, int key) {
     if (!root) return root;
 

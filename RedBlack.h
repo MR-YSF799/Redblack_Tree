@@ -12,11 +12,11 @@ struct Node {
     Node *left, *right, *parent;
 };
 
-// Variables globales déclarées dans le .cpp
+
 extern Node* root;
 extern Node* NIL;
 
-// Prototypes de fonctions
+
 void init();
 Node* createNode(int key);
 void leftRotate(Node* &root, Node *x);
@@ -25,4 +25,4 @@ void fixInsert(Node* &root, Node* z);
 void Insert(int key);
 void inorder(Node* node);
 
-#endif // RNTREE_H
+#endif 

@@ -1,10 +1,10 @@
 #include "RedBlack.h"
 
-// Declaration du NIL et de root
+
 Node* root = nullptr;
 Node* NIL = nullptr;
 
-// -------------------- Initialisation --------------------
+
 void init() {
     NIL = new Node();
     NIL->color = BLACK;
@@ -13,7 +13,7 @@ void init() {
     root = NIL;
 }
 
-// -------------------- Creation d'un nœud --------------------
+
 Node* createNode(int key) {
     Node* node = new Node();
     node->key = key;
@@ -22,7 +22,7 @@ Node* createNode(int key) {
     return node;
 }
 
-// -------------------- Rotation gauche --------------------
+
 void leftRotate(Node* &root, Node *x) {
     Node* y = x->right;
     x->right = y->left;
@@ -42,7 +42,7 @@ void leftRotate(Node* &root, Node *x) {
     x->parent = y;
 }
 
-// -------------------- Rotation droite --------------------
+
 void rightRotate(Node* &root, Node *y) {
     Node* x = y->left;
     y->left = x->right;
@@ -62,7 +62,7 @@ void rightRotate(Node* &root, Node *y) {
     y->parent = x;
 }
 
-// -------------------- Correction après insertion --------------------
+
 void fixInsert(Node* &root, Node* z) {
     while (z->parent->color == RED) {
         if (z->parent == z->parent->parent->left) {
@@ -108,7 +108,7 @@ void fixInsert(Node* &root, Node* z) {
     root->color = BLACK;
 }
 
-// -------------------- Insertion --------------------
+
 void Insert(int key) {
     Node* z = createNode(key);
     Node* y = NIL;
@@ -134,7 +134,7 @@ void Insert(int key) {
     fixInsert(root, z);
 }
 
-// -------------------- Affichage Inorder --------------------
+
 void inorder(Node* node) {
     if (node == NIL) return;
     inorder(node->left);
