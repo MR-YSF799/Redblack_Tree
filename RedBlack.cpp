@@ -248,3 +248,16 @@ void inorder(Node* node) {
         inorder(node->right);
     }
 }
+Node* Search(int key) {
+    Node* node = root;
+    while (node != NIL) {
+        if (key == node->key)
+            return node;   // trouve 
+        else if (key < node->key)
+            node = node->left;
+        else
+            node = node->right;
+    }
+    return nullptr;  // non trouve
+}
+
