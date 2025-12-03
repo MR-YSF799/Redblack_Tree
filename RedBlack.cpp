@@ -3,7 +3,7 @@
 
 Node* root = nullptr;
 Node* NIL = nullptr;
-
+using namespace std;
 
 void init() {
     NIL = new Node();

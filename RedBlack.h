@@ -2,7 +2,6 @@
 #define RNTREE_H
 
 #include <iostream>
-using namespace std;
 
 enum Color { RED, BLACK };
 
@@ -12,9 +11,9 @@ struct Node {
     Node *left, *right, *parent;
 };
 
+Node* root;
+Node* NIL;
 
-extern Node* root;
-extern Node* NIL;
 
 
 void init();
