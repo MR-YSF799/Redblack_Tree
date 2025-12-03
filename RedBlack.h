@@ -25,5 +25,7 @@ void Delete(int key);          // <-- ajout de la fonction supprimer
 void fixDelete(Node* &root, Node* x);
 Node* treeMinimum(Node* node);
 void inorder(Node* node);
+Node* Search(int key);
+
 
 #endif
