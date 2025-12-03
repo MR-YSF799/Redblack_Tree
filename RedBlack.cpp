@@ -1,6 +1,6 @@
 #include "RedBlack.h"
 
-// Déclaration du NIL et de root
+// Declaration du NIL et de root
 Node* root = nullptr;
 Node* NIL = nullptr;
 
@@ -13,7 +13,7 @@ void init() {
     root = NIL;
 }
 
-// -------------------- Création d'un nœud --------------------
+// -------------------- Creation d'un nœud --------------------
 Node* createNode(int key) {
     Node* node = new Node();
     node->key = key;
