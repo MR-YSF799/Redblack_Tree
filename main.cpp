@@ -1,104 +1,95 @@
 #include <iostream>
 #include <vector>
-#include <set>
-#include <map>
+#include <string>
 #include <chrono>
 #include <algorithm>
-#include "RedBlack.h"
+#include <random>
+#include <set>
+#include <map>
 #include "BST.h"
+#include "RedBlack.h"
 
 using namespace std;
-using namespace std::chrono;
+using namespace chrono;
+
+// Génère des chaînes aléatoires
+string randomString(int length) {
+    static const char charset[] =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    static mt19937 g(random_device{}());
+    static uniform_int_distribution<int> dist(0, sizeof(charset) - 2);
+
+    string res;
+    for (int i = 0; i < length; ++i)
+        res += charset[dist(g)];
+    return res;
+}
+
+// Fonction pour mesurer le temps en millisecondes
+template<typename Func>
+long long measure(Func f) {
+    auto start = high_resolution_clock::now();
+    f();
+    auto end = high_resolution_clock::now();
+    return duration_cast<milliseconds>(end - start).count();
+}
+
+// Benchmark générique pour un type T (sans search)
+template<typename T>
+void benchmarkData(const string& typeName, vector<T>& data) {
+    cout << "\n=================== Benchmark type: " << typeName << " ===================\n";
+
+    // ---------------- Red-Black Tree ----------------
+    RedBlackTree<T> rbTree;
+    cout << "\n--- Red-Black Tree ---\n";
+    cout << "Insertion: " 
+         << measure([&]{ for(auto& key: data) rbTree.insert(key); }) << " ms\n";
+    cout << "Removal: " 
+         << measure([&]{ for(auto& key: data) rbTree.remove(key); }) << " ms\n";
+
+    // ---------------- BST ----------------
+    BSTNode<T>* bstRoot = nullptr;
+    cout << "\n--- BST ---\n";
+    cout << "Insertion: " 
+         << measure([&]{ for(auto& key: data) bstRoot = bstInsert(bstRoot, key); }) << " ms\n";
+    cout << "Removal: " 
+         << measure([&]{ for(auto& key: data) bstRoot = bstDelete(bstRoot, key); }) << " ms\n";
+
+    // ---------------- std::set ----------------
+    set<T> st;
+    cout << "\n--- std::set ---\n";
+    cout << "Insertion: " 
+         << measure([&]{ for(auto& key: data) st.insert(key); }) << " ms\n";
+    cout << "Removal: " 
+         << measure([&]{ for(auto& key: data) st.erase(key); }) << " ms\n";
+
+    // ---------------- std::map ----------------
+    map<T,int> mp;
+    cout << "\n--- std::map ---\n";
+    cout << "Insertion: " 
+         << measure([&]{ for(int i=0; i<data.size(); ++i) mp[data[i]] = i; }) << " ms\n";
+    cout << "Removal: " 
+         << measure([&]{ for(auto& key: data) mp.erase(key); }) << " ms\n";
+
+    cout << "============================================================\n";
+}
 
 int main() {
-    int n = 100000;
-    vector<int> data(n);
-    for (int i = 0; i < n; ++i) data[i] = i + 1;
+    const int N = 1000000;   // 1 million d'éléments
+    const int STR_LEN = 10;   // Longueur des chaînes
+    mt19937 g(random_device{}());
 
+    // ---------------- Entiers ----------------
+    vector<int> intData(N);
+    for(int i=0; i<N; ++i) intData[i] = i+1;
+    shuffle(intData.begin(), intData.end(), g);
+    benchmarkData("int", intData);
 
-    init();
-    auto start_rb_insert = high_resolution_clock::now();
-    for (int x : data) Insert(x);
-    auto end_rb_insert = high_resolution_clock::now();
-
-    auto start_rb_search = high_resolution_clock::now();
-    for (int x : data) Search(x);
-    auto end_rb_search = high_resolution_clock::now();
-
-    auto start_rb_delete = high_resolution_clock::now();
-    for (int x : data) Delete(x);
-    auto end_rb_delete = high_resolution_clock::now();
-
-    cout << "Red-Black Tree custom insertion time: "
-         << duration_cast<milliseconds>(end_rb_insert - start_rb_insert).count() << " ms" << endl;
-    cout << "Red-Black Tree custom search time: "
-         << duration_cast<milliseconds>(end_rb_search - start_rb_search).count() << " ms" << endl;
-    cout << "Red-Black Tree custom deletion time: "
-         << duration_cast<milliseconds>(end_rb_delete - start_rb_delete).count() << " ms" << endl;
-
-    set<int> s;
-    auto start_set_insert = high_resolution_clock::now();
-    for (int x : data) s.insert(x);
-    auto end_set_insert = high_resolution_clock::now();
-
-    auto start_set_search = high_resolution_clock::now();
-    for (int x : data) s.find(x);
-    auto end_set_search = high_resolution_clock::now();
-
-    auto start_set_delete = high_resolution_clock::now();
-    for (int x : data) s.erase(x);
-    auto end_set_delete = high_resolution_clock::now();
-
-    cout << "std::set insertion time: "
-         << duration_cast<milliseconds>(end_set_insert - start_set_insert).count() << " ms" << endl;
-    cout << "std::set search time: "
-         << duration_cast<milliseconds>(end_set_search - start_set_search).count() << " ms" << endl;
-    cout << "std::set deletion time: "
-         << duration_cast<milliseconds>(end_set_delete - start_set_delete).count() << " ms" << endl;
-
-    map<int,int> m;
-    auto start_map_insert = high_resolution_clock::now();
-    for (int x : data) m[x] = x;
-    auto end_map_insert = high_resolution_clock::now();
-
-    auto start_map_search = high_resolution_clock::now();
-    for (int x : data) m.find(x);
-    auto end_map_search = high_resolution_clock::now();
-
-    auto start_map_delete = high_resolution_clock::now();
-    for (int x : data) m.erase(x);
-    auto end_map_delete = high_resolution_clock::now();
-
-    cout << "std::map insertion time: "
-         << duration_cast<milliseconds>(end_map_insert - start_map_insert).count() << " ms" << endl;
-    cout << "std::map search time: "
-         << duration_cast<milliseconds>(end_map_search - start_map_search).count() << " ms" << endl;
-    cout << "std::map deletion time: "
-         << duration_cast<milliseconds>(end_map_delete - start_map_delete).count() << " ms" << endl;
-
-    BSTNode* bstRoot = nullptr;
-
-auto start_bst_insert = high_resolution_clock::now();
-for (int x : data) bstRoot = bstInsert(bstRoot, x);
-auto end_bst_insert = high_resolution_clock::now();
-
-int foundCount = 0;
-auto start_bst_search = high_resolution_clock::now();
-for (int x : data)
-    if (bstSearch(bstRoot, x)) foundCount++;
-auto end_bst_search = high_resolution_clock::now();
-
-auto start_bst_delete = high_resolution_clock::now();
-for (int x : data) bstRoot = bstDelete(bstRoot, x);
-auto end_bst_delete = high_resolution_clock::now();
-
-cout << "BST insertion time: "
-     << duration_cast<milliseconds>(end_bst_insert - start_bst_insert).count() << " ms" << endl;
-cout << "BST search time: "
-     << duration_cast<milliseconds>(end_bst_search - start_bst_search).count() << " ms" << endl;
-cout << "BST deletion time: "
-     << duration_cast<milliseconds>(end_bst_delete - start_bst_delete).count() << " ms" << endl;
-cout << "BST total found elements: " << foundCount << endl;
+    // ---------------- Chaînes ----------------
+    vector<string> strData(N);
+    for(int i=0; i<N; ++i) strData[i] = randomString(STR_LEN);
+    shuffle(strData.begin(), strData.end(), g);
+    benchmarkData("string", strData);
 
     return 0;
 }
